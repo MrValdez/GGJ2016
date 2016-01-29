@@ -28,50 +28,9 @@ unsigned char blocks[0x64], map[0x64] =
  8,8,6,8,6,6,8,6,8,8,
  1,1,1,1,1,1,1,1,1,1};
 
-void title() {
-
-  writestring("TEAM SONY", blockmap, 0x06A, 0x3F6);
-  writestring("presents", blockmap, 0x10A, 0x3F6);
-  writestring("A NINTENDO GAME", blockmap, 0x12A, 0x3F6);
-  writestring("developed at", blockmap, 0x16A, 0x3F6);
-  writestring("MICROSOFT PHILIPPINES", blockmap, 0x18A, 0x3F6);
-}
-
-void clearblockmap() {
-  int i;
-  for (i = 0x20; i < 0x400; i++)
-  {
-    writestring(" ", blockmap, i, 0x3F6);
-  }
-  setmap(0, (unsigned char*)blockmap);
-}
-
 int main() {
   snesc_init();
-
-  settiles(0, tiles1, 0xF00);
-  settiles(1, tiles2, 0x250);
   
-//  memcpy(blockmap, bg1map, 0x800);
-//  memcpy(backmap, bg2map, 0x800);
-//  memcpy(blocks, map, 0x64);
-  memcpy(pal, palette, 0x200);
-  setmap(0, (unsigned char*)blockmap);
-//  setmap(1, (unsigned char*)backmap);
-  setpalette((unsigned char*)pal);
-
-  title();
-
-  enablescreen();
-
-label1:
-  resettimer();
-
-  while (getjoystatus(0) == 0) continue;
-  clearblockmap();
-  writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
-
-/*  
   char st[17]="PLAYER 1\n\n READY", st2[10]="GAME OVER", st3[6]="PAUSE", st4[9]="        ";
   unsigned int i, j, a, b=0, c, obx, oby, bx=5, by=11, py=0, x=94, y=109;
   signed int dx=2, dy=1, px=80, xdir[4]={-2,-1,1,2}, ydir[4]={-1,-2,-2,-1};
@@ -290,7 +249,7 @@ label1:
   setsprite(7, px+12, 204, 19, 0x11);
   setsprite(8, px+20, 204, 19, 0x11+64);
   setsprite(9, px+28, 204, 18, 0x11+64);
-*/
+
   sync(1);
   goto label1;
 }

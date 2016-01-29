@@ -61,15 +61,28 @@ int main() {
   setpalette((unsigned char*)pal);
 
   title();
-
   enablescreen();
-
-label1:
   resettimer();
 
-  while (getjoystatus(0) == 0) continue;
+  //while (getjoystatus(0) == 0) continue;
+
+label1:
   clearblockmap();
   writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
+
+  int y = 50;
+  setsprite(0,  32, 32 + y, 19, 0x31);
+  setsprite(1,  32, 37 + y, 20, 0x31);
+  setsprite(2,  32, 42 + y, 20, 0x31);
+  setsprite(3,  32, 47 + y, 21, 0x31);
+  setsprite(4,  37, 37 + y, 18, 0x31);
+  setsprite(5,  37, 42 + y, 18, 0x31);
+  setsprite(6,  42, 42 + y, 18, 0x31);
+  setsprite(7,  47, 42 + y, 18, 0x31);
+  setsprite(8,  52, 42 + y, 18, 0x31);
+  setsprite(9,  57, 42 + y, 18, 0x31);
+  setsprite(10, 62, 42 + y, 18, 0x31);
+  setsprite(11, 67, 42 + y, 18, 0x31);
 
 /*  
   char st[17]="PLAYER 1\n\n READY", st2[10]="GAME OVER", st3[6]="PAUSE", st4[9]="        ";
@@ -79,9 +92,6 @@ label1:
   unsigned long long score=0, hiscore=50000;
   unsigned int level2=1;
   unsigned int color=0, level=0, lives=4;
-
-  settiles(0, tiles1, 0xF00);
-  settiles(1, tiles2, 0x250);
   
   memcpy(blockmap, bg1map, 0x800);
   memcpy(backmap, bg2map, 0x800);

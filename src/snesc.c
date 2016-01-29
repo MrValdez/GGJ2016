@@ -65,35 +65,49 @@ int main() {
   resettimer();
 
   //while (getjoystatus(0) == 0) continue;
-
+  int tick = 0;
+  
 label1:
   clearblockmap();
   writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
 
-  int y = 50;
-  /*setsprite(0,  32, 32 + y, 19, 0x31);
-  setsprite(1,  32, 37 + y, 20, 0x31);
-  setsprite(2,  32, 42 + y, 20, 0x31);
-  setsprite(3,  32, 47 + y, 21, 0x31);
-  setsprite(4,  37, 37 + y, 18, 0x31);
-  setsprite(5,  37, 42 + y, 18, 0x31);
-  setsprite(6,  42, 42 + y, 18, 0x31);
-  setsprite(7,  47, 42 + y, 18, 0x31);
-  setsprite(8,  52, 42 + y, 18, 0x31);
-  setsprite(9,  57, 42 + y, 18, 0x31);
-  setsprite(10, 62, 42 + y, 18, 0x31);
-  setsprite(11, 67, 42 + y, 18, 0x31);*/
   // create sheet
   int i = 0, x, y;
-  int bed_x = 80;
-  int bed_y = 100;
+  int bed_x = 90;
+  int bed_y = 130;
   
   for(y = 0; y < 3; y++)
-    for(x = 0; x < 10; x++)
+    for(x = 0; x < 8; x++)
     {
-        setsprite(i, bed_x + (x * 5), bed_y + (y*5), 18, 0x31);
+        if (x % 2)
+          setsprite(i, bed_x + (x * 5), bed_y + (y*5), 18, 0x31);
+        else
+          setsprite(i, bed_x + (x * 5), bed_y + (y*5) - 1, 18, 0x31);
         i+=1;
     }
+
+  // breathing sheet
+  if (tick % 2)
+    setsprite(i, bed_x + (x * 5), bed_y + 1, 18, 0x31);
+  else
+    setsprite(i, bed_x + (x * 5), bed_y + - 1, 18, 0x31);
+  i += 1;
+
+  for (y=1; y < 2; y++)
+  {
+    setsprite(i, bed_x + (x * 5), bed_y + (y * 5), 18, 0x31);
+    i += 1;
+  }
+  x += 1;
+  
+  // head
+  setsprite(i, bed_x + (x * 5) + 3, bed_y + 1, 17, 0x31);
+
+  tick += 1;
+  if (tick % 2)
+    delay(110);
+  else
+    delay(90);
 
 /*  
   char st[17]="PLAYER 1\n\n READY", st2[10]="GAME OVER", st3[6]="PAUSE", st4[9]="        ";

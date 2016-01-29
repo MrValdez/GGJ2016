@@ -71,7 +71,7 @@ label1:
   writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
 
   int y = 50;
-  setsprite(0,  32, 32 + y, 19, 0x31);
+  /*setsprite(0,  32, 32 + y, 19, 0x31);
   setsprite(1,  32, 37 + y, 20, 0x31);
   setsprite(2,  32, 42 + y, 20, 0x31);
   setsprite(3,  32, 47 + y, 21, 0x31);
@@ -82,7 +82,18 @@ label1:
   setsprite(8,  52, 42 + y, 18, 0x31);
   setsprite(9,  57, 42 + y, 18, 0x31);
   setsprite(10, 62, 42 + y, 18, 0x31);
-  setsprite(11, 67, 42 + y, 18, 0x31);
+  setsprite(11, 67, 42 + y, 18, 0x31);*/
+  // create sheet
+  int i = 0, x, y;
+  int bed_x = 80;
+  int bed_y = 100;
+  
+  for(y = 0; y < 3; y++)
+    for(x = 0; x < 10; x++)
+    {
+        setsprite(i, bed_x + (x * 5), bed_y + (y*5), 18, 0x31);
+        i+=1;
+    }
 
 /*  
   char st[17]="PLAYER 1\n\n READY", st2[10]="GAME OVER", st3[6]="PAUSE", st4[9]="        ";

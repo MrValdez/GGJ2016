@@ -1,1 +1,5 @@
 lib
+*.ps
+*.s
+*.obj
+*.sym

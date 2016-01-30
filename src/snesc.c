@@ -28,6 +28,8 @@ unsigned char blocks[0x64], map[0x64] =
  8,8,6,8,6,6,8,6,8,8,
  1,1,1,1,1,1,1,1,1,1};
 
+int tick = 0;
+int current_sprite;
 void title() {
 
   writestring("TEAM SONY", blockmap, 0x06A, 0x3F6);
@@ -35,6 +37,55 @@ void title() {
   writestring("A NINTENDO GAME", blockmap, 0x12A, 0x3F6);
   writestring("developed at", blockmap, 0x16A, 0x3F6);
   writestring("MICROSOFT PHILIPPINES", blockmap, 0x18A, 0x3F6);
+}
+
+void bed_animation() {
+  writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
+
+  // create sheet
+  int i = 0, x, y;
+  int bed_x = 90;
+  int bed_y = 130;
+  
+  for(y = 0; y < 3; y++)
+    for(x = 0; x < 8; x++)
+    {
+        if (x % 2)
+          setsprite(current_sprite, bed_x + (x * 5), bed_y + (y*5), 18, 0x31);
+        else
+          setsprite(current_sprite, bed_x + (x * 5), bed_y + (y*5) - 1, 18, 0x31);
+        current_sprite+=1;
+    }
+
+  // breathing sheet
+  if (tick % 2)
+    setsprite(current_sprite, bed_x + (x * 5), bed_y + 1, 18, 0x31);
+  else
+    setsprite(current_sprite, bed_x + (x * 5), bed_y + - 1, 18, 0x31);
+  current_sprite += 1;
+
+  for (y=1; y < 2; y++)
+  {
+    setsprite(current_sprite, bed_x + (x * 5), bed_y + (y * 5), 18, 0x31);
+    current_sprite += 1;
+  }
+  x += 1;
+  
+  // head
+  int head_position_x = bed_x + (x * 5) + 3;
+  setsprite(current_sprite, head_position_x, bed_y + 1, 17, 0x31);
+  current_sprite+=1;
+  
+  // moving Z
+  setsprite(current_sprite, head_position_x + 10 + (tick % 4), bed_y - 20, 80, 0x31);
+  current_sprite+=1;
+  setsprite(current_sprite, head_position_x + 10 - (tick % 4) - 3, bed_y - 14, 80, 0x31);
+  current_sprite+=1;
+
+  if (tick % 2)
+    delay(30);
+  else
+    delay(50);
 }
 
 void clearblockmap() {
@@ -49,7 +100,8 @@ void clearblockmap() {
 int main() {
   snesc_init();
 
-  settiles(0, tiles1, 0xF00);
+  //settiles(0, tiles1, 0xF00 + (16*3) );
+  settiles(0, tiles1, 0xFFF );
   settiles(1, tiles2, 0x250);
   
 //  memcpy(blockmap, bg1map, 0x800);
@@ -65,49 +117,39 @@ int main() {
   resettimer();
 
   //while (getjoystatus(0) == 0) continue;
-  int tick = 0;
   
-label1:
+  int mouse_x = 10;
+  int mouse_y = 10;
+  int mouse_speed = 1;
+  int mouse_sprite[2] = {-1, -1};
+  
   clearblockmap();
-  writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
 
-  // create sheet
-  int i = 0, x, y;
-  int bed_x = 90;
-  int bed_y = 130;
-  
-  for(y = 0; y < 3; y++)
-    for(x = 0; x < 8; x++)
-    {
-        if (x % 2)
-          setsprite(i, bed_x + (x * 5), bed_y + (y*5), 18, 0x31);
-        else
-          setsprite(i, bed_x + (x * 5), bed_y + (y*5) - 1, 18, 0x31);
-        i+=1;
-    }
-
-  // breathing sheet
-  if (tick % 2)
-    setsprite(i, bed_x + (x * 5), bed_y + 1, 18, 0x31);
-  else
-    setsprite(i, bed_x + (x * 5), bed_y + - 1, 18, 0x31);
-  i += 1;
-
-  for (y=1; y < 2; y++)
-  {
-    setsprite(i, bed_x + (x * 5), bed_y + (y * 5), 18, 0x31);
-    i += 1;
-  }
-  x += 1;
-  
-  // head
-  setsprite(i, bed_x + (x * 5) + 3, bed_y + 1, 17, 0x31);
-
+label1:
+  current_sprite = 0;
   tick += 1;
-  if (tick % 2)
-    delay(110);
-  else
-    delay(90);
+  clearjoy(0);
+  delay(1);
+//  bed_animation();
+
+  if ((getjoystatus(0) & RIGHT_BUTTON) != 0) mouse_x += mouse_speed;
+  if ((getjoystatus(0) & LEFT_BUTTON) != 0) mouse_x -= mouse_speed;
+  if ((getjoystatus(0) & UP_BUTTON) != 0) mouse_y -= mouse_speed;
+  if ((getjoystatus(0) & DOWN_BUTTON) != 0) mouse_y += mouse_speed;
+
+    //initialize mouse sprite
+    if (mouse_sprite[0] == -1) 
+      mouse_sprite[0] = current_sprite++;
+    if (mouse_sprite[1] == -1) 
+      mouse_sprite[1] = current_sprite++;
+
+  setsprite(mouse_sprite[0], mouse_x + 3, mouse_y, 120, 0x31);
+  //if (getjoystatus(0))
+  {
+    if ((getjoystatus(0) & A_BUTTON) != 0)
+      setsprite(mouse_sprite[0], mouse_x + 2, mouse_y + 1, 120, 0x31);
+    setsprite(mouse_sprite[1], mouse_x + 3, mouse_y + 5, 121, 0x31);
+   }
 
 /*  
   char st[17]="PLAYER 1\n\n READY", st2[10]="GAME OVER", st3[6]="PAUSE", st4[9]="        ";
@@ -326,6 +368,6 @@ label1:
   setsprite(8, px+20, 204, 19, 0x11+64);
   setsprite(9, px+28, 204, 18, 0x11+64);
 */
-  sync(1);
+  //sync(1);
   goto label1;
 }

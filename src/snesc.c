@@ -1,4 +1,4 @@
-int release = 0;  // release mode or test mode
+int release = 1;  // release mode or test mode
 
 
 
@@ -152,9 +152,9 @@ void GameTitle()
 
   int bed_x = 90;
   int bed_y = 130;
-start_menu:
   current_sprite = 0;
 
+start_menu:
   bed_animation(bed_x, bed_y, 1);
 
   if ((getjoystatus(0) & UP_BUTTON) != 0 ||
@@ -162,7 +162,6 @@ start_menu:
       release == 0)
   {
     clearblockmap();
-    current_sprite -= 2;  // remove the two Zs
     goto bed_animation_transition;
   }
 
@@ -172,6 +171,7 @@ start_menu:
   goto start_menu;
   
 bed_animation_transition:
+  current_sprite = bed_sprite_end - 2;  // remove the two Zs
   tick += 1;
   clearjoy(0);
   delay(1);
@@ -198,16 +198,12 @@ int main() {
   settiles(0, tiles1, 0xFFF );
   settiles(1, tiles2, 0x250);
   
-//  memcpy(blockmap, bg1map, 0x800);
-//  memcpy(backmap, bg2map, 0x800);
-//  memcpy(blocks, map, 0x64);
   memcpy(pal, palette, 0x200);
   setmap(0, (unsigned char*)blockmap);
-//  setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
 
   GameTitle();
-/*
+
   unsigned char blocks[0x64], map[0x64] = 
 {7,8,8,8,8,8,8,8,8,7,
  8,7,8,7,8,8,7,8,7,8,
@@ -238,7 +234,10 @@ int main() {
       b++;
     }
   }
-*/
+  setmap(0, (unsigned char*)blockmap);
+  setmap(1, (unsigned char*)backmap);
+  setpalette((unsigned char*)pal);
+
 stage1:
   tick += 1;
   clearjoy(0);

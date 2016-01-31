@@ -245,6 +245,31 @@ bed_animation_transition:
   goto bed_animation_transition;
 }
 
+int prev_rand = 1;
+int random(min, max)
+{
+  tick++;
+  int r = min + ((tick * prev_rand) % (max - min));
+  prev_rand = r;
+  return r;
+}
+
+int random_x()
+{
+  // returns a random number between the tablet width
+  // range: 305 - 450 
+  // padding: 12
+  return random(305 + 12, 450 - 12);
+}
+
+int random_y()
+{
+  // returns a random number between the tablet height
+  // range: 355 - 435 
+  // padding: 12
+  return random(355 + 12, 435 - 12);  
+}
+
 void start_mouse_stage()
 {
 }
@@ -279,6 +304,7 @@ int main() {
       
       //color
       blockmap[pos+x] += 0x400 * 0;
+      backmap[pos+x] += 0x400 * 1;
       
       i++;
     }
@@ -289,6 +315,42 @@ int main() {
   setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
 
+//stage1_load:
+  mouse_stage();
+  int clickables_left[6], clickables_right[6];
+  int clickables_x[12], clickables_y[12];
+  for (i = 0; i < 12; i++)
+  {
+    clickables_x[i] = random_x();
+    clickables_y[i] = random_y();
+  }
+
+  for (i = 0; i < 6; i++)
+  {
+    clickables_left[i] = current_sprite;
+    current_sprite += 4;
+    clickables_right[i] = current_sprite;
+    current_sprite += 4;
+  }
+  
+  for (i = 0; i < 6; i++)
+  {
+    int sprite = clickables_left[i];
+    setsprite(sprite+0, clickables_x[i] - 0, clickables_y[i] - 0, 122, 0x11 + 64);
+    setsprite(sprite+1, clickables_x[i] - 8, clickables_y[i] - 0, 123, 0x11 + 64);
+    setsprite(sprite+2, clickables_x[i] - 0, clickables_y[i] + 8, 124, 0x11 + 64);
+    setsprite(sprite+3, clickables_x[i] - 8, clickables_y[i] + 8, 125, 0x11 + 64);
+  }
+
+  for (i = 0; i < 6; i++)
+  {
+    int sprite = clickables_right[i];
+    setsprite(sprite+0, clickables_x[i + 6] + 0, clickables_y[i + 6] + 0, 122, 0x11 );
+    setsprite(sprite+1, clickables_x[i + 6] + 8, clickables_y[i + 6] + 0, 123, 0x11 );
+    setsprite(sprite+2, clickables_x[i + 6] + 0, clickables_y[i + 6] + 8, 124, 0x11 );
+    setsprite(sprite+3, clickables_x[i + 6] + 8, clickables_y[i + 6] + 8, 125, 0x11 );
+  }
+
 stage1:
   tick += 1;
   clearjoy(0);
@@ -296,12 +358,8 @@ stage1:
 
   mouse_stage();
 
-  setsprite(current_sprite,   42, 50, 122, 0x31);
-  setsprite(current_sprite+1, 50, 50, 123, 0x31);
-  setsprite(current_sprite+2, 42, 58, 124, 0x31);
-  setsprite(current_sprite+3, 50, 58, 125, 0x31);
-  //writenum(current_sprite, 8, blockmap, 0x136, 0x426);
-  //setmap(0, (unsigned char*)blockmap);
+  writenum(current_sprite, 8, blockmap, 0x136, 0x426);
+  setmap(0, (unsigned char*)blockmap);
   
   goto stage1;
 

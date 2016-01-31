@@ -562,7 +562,7 @@ lost:
   writestring("                      ", blockmap, 774, 0x3F6);
   writestring("       ", blockmap, 0x117, 0x3F6);
   
-  writestring("Oh noes! You spent too much time on Dogger.", blockmap, 0x084, 0x3F6);
+  writestring("Oh noes! You spent too much time on Barrker.", blockmap, 0x084, 0x3F6);
   writestring("Maybe its time to switch to another social media?", blockmap, 0x0E4, 0x3F6);
   writestring("To be continued in\n\n  Morning Ritual 2:\n  RaceBook", blockmap, 0x207, 0x3F6);
   setmap(0, (unsigned char*)blockmap);

@@ -1,4 +1,4 @@
-int release = 1;  // release mode or test mode
+int release = 0;  // release mode or test mode
  unsigned char background1[] = {
 0,19,18,19,20,20,20,18,20,19,18,20,19,20,18,20,20,20,19,0,
 18,20,19,19,19,20,18,19,18,19,19,18,20,18,19,18,20,19,19,20,
@@ -107,9 +107,9 @@ void bed_animation(bed_x, bed_y, is_idling) {
 
   // breathing sheet
   if (tick % 2)
-    setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y + 1, 18, 0x31);
+    setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y + 0, 18, 0x31);
   else
-    setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y + - 1, 18, 0x31);
+    setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y - 2, 18, 0x31);
   current_bed_sprite++;
 
   for (y=1; y < 2; y++)
@@ -125,13 +125,13 @@ void bed_animation(bed_x, bed_y, is_idling) {
   current_bed_sprite++;
   
   // moving Z
-  setsprite(bed_sprite_start + current_bed_sprite, head_position_x + 10 + (tick % 4), bed_y - 20, 80, 0x31);
-  current_bed_sprite++;
-  setsprite(bed_sprite_start + current_bed_sprite, head_position_x + 10 - (tick % 4) - 3, bed_y - 14, 80, 0x31);
-  current_bed_sprite++;
-  
   if (is_idling)
   {
+    setsprite(bed_sprite_start + current_bed_sprite, head_position_x + 10 + (tick % 4), bed_y - 20, 80, 0x11);
+    current_bed_sprite++;
+    setsprite(bed_sprite_start + current_bed_sprite, head_position_x + 10 - (tick % 4) - 3, bed_y - 14, 80, 0x11);
+    current_bed_sprite++;
+  
     if (tick % 2)
       delay(30);
     else
@@ -230,6 +230,9 @@ start_menu:
   
 bed_animation_transition:
   current_sprite = bed_sprite_end - 2;  // remove the two Zs
+  setsprite(current_sprite, 0,0,0, 0x11);
+  setsprite(current_sprite+1, 0,0,0, 0x11);
+
   tick += 1;
   clearjoy(0);
   delay(1);
@@ -314,7 +317,7 @@ int main() {
   setmap(0, (unsigned char*)blockmap);
   setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
-  writestring("Loading PADD  ", blockmap, 779, 0x3F6);
+  writestring("Starting PADD  ", blockmap, 779, 0x3F6);
   if (release == 1) delay(130);
 
  for (y=0; y<12; y++) {
@@ -325,12 +328,13 @@ int main() {
   }
   setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
-  writestring("Loading BARRKER (tm)", blockmap, 776, 0x3F6);
+  writestring("Loading BARRKER (tm)", blockmap, 774, 0x3F6);
   setmap(0, (unsigned char*)blockmap);
   if (release == 1) {
     sync(1);
     delay(100);
   }
+  writestring(" REBARK the BARRKS! ", blockmap, 774, 0x3F6);
 
 //stage1_load:
   mouse_stage();

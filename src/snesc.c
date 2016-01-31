@@ -1,4 +1,4 @@
-int release = 0;  // release mode or test mode
+int release = 1;  // release mode or test mode
  unsigned char background1[] = {
 0,19,18,19,20,20,20,18,20,19,18,20,19,20,18,20,20,20,19,0,
 18,20,19,19,19,20,18,19,18,19,19,18,20,18,19,18,20,19,19,20,
@@ -250,7 +250,7 @@ int random(min, max)
 {
   tick++;
   int r = min + ((tick * prev_rand) % (max - min));
-  prev_rand = r;
+  prev_rand = r % 254;
   return r;
 }
 
@@ -287,6 +287,7 @@ int main() {
 
   GameTitle();
 
+// map:
   //memcpy(blockmap, bg1map, 0x800);
   //memcpy(backmap, bg2map, 0x800);
   //memcpy(blocks, map, 0x64);
@@ -304,16 +305,32 @@ int main() {
       
       //color
       blockmap[pos+x] += 0x400 * 0;
-      backmap[pos+x] += 0x400 * 1;
+      backmap[pos+x] += 0x400 * 2;
       
       i++;
     }
   }
   
   setmap(0, (unsigned char*)blockmap);
-  delay(10);
   setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
+  writestring("Loading PADD  ", blockmap, 779, 0x3F6);
+  if (release == 1) delay(130);
+
+ for (y=0; y<12; y++) {
+    unsigned long pos = start_y + (y<<5);
+    for (x=0; x<20; x+=1) {
+      backmap[pos+x] -= 0x400 * 1;
+    }
+  }
+  setmap(1, (unsigned char*)backmap);
+  setpalette((unsigned char*)pal);
+  writestring("Loading BARRKER (tm)", blockmap, 776, 0x3F6);
+  setmap(0, (unsigned char*)blockmap);
+  if (release == 1) {
+    sync(1);
+    delay(100);
+  }
 
 //stage1_load:
   mouse_stage();

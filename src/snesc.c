@@ -96,7 +96,7 @@ void bed_animation(bed_x, bed_y, is_idling) {
   int current_bed_sprite = 0;
   
   for(y = 0; y < 3; y++)
-    for(x = 0; x < 8; x++)
+    for(x = 0; x < 5; x++)
     {
         if (x % 2)
           setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y + (y*5), 18, 0x31);
@@ -295,7 +295,14 @@ stage1:
   delay(1);
 
   mouse_stage();
-    
+
+  setsprite(current_sprite,   42, 50, 122, 0x31);
+  setsprite(current_sprite+1, 50, 50, 123, 0x31);
+  setsprite(current_sprite+2, 42, 58, 124, 0x31);
+  setsprite(current_sprite+3, 50, 58, 125, 0x31);
+  //writenum(current_sprite, 8, blockmap, 0x136, 0x426);
+  //setmap(0, (unsigned char*)blockmap);
+  
   goto stage1;
 
   //sync(1);

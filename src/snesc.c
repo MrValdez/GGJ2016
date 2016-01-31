@@ -481,8 +481,64 @@ stage1:
     writenum(energy * -1, 8, blockmap, 0x112, 0x426);
   }
   setmap(0, (unsigned char*)blockmap);
+
+  if (energy > 105) goto victory;
+  if (energy < 8) goto lost;
   
   goto stage1;
-
   //sync(1);
+
+victory:
+  clearblockmap();
+  unsigned int start_y = 390;
+i=0;  
+  for (y=0; y<12; y++) {
+    unsigned long pos = start_y + (y<<5);
+    for (x=0; x<20; x+=1) {
+      blockmap[pos+x] = padd_map[i];
+      backmap[pos+x] = background1[i];
+      
+      //color
+      blockmap[pos+x] += 0x400 * 0;
+      backmap[pos+x] += 0x400 * 4;
+      
+      i++;
+    }
+  }
+  
+  setmap(0, (unsigned char*)blockmap);
+  setmap(1, (unsigned char*)backmap);
+  setpalette((unsigned char*)pal);
+  for (i = 0; i < current_sprite; i++)
+    setsprite(i, 0, 0, 0, 0x31);
+
+  writestring("           ", blockmap, 0x0B2, 0x3F6);
+  writestring("                      ", blockmap, 774, 0x3F6);
+  writestring("       ", blockmap, 0x117, 0x3F6);
+  
+  writestring("Congratulations!\n You are now awake!", blockmap, 0x084, 0x3F6);
+  writestring("Have a good day!", blockmap, 0x104, 0x3F6);
+  writestring("Thank you for playing!", blockmap, 0x245, 0x3F6);
+  setmap(0, (unsigned char*)blockmap);
+  goto endloop;
+  
+lost:
+  clearblockmap();
+  for (i = 0; i < current_sprite; i++)
+    setsprite(i, 0, 0, 0, 0x31);
+
+  writestring("           ", blockmap, 0x0B2, 0x3F6);
+  writestring("                      ", blockmap, 774, 0x3F6);
+  writestring("       ", blockmap, 0x117, 0x3F6);
+  
+  writestring("Oh noes! You spent too much time on Dogger.", blockmap, 0x084, 0x3F6);
+  writestring("Maybe its time to switch to another social media?", blockmap, 0x0E4, 0x3F6);
+  writestring("To be continued in\n\n  Morning Ritual 2:\n  RaceBook", blockmap, 0x207, 0x3F6);
+  setmap(0, (unsigned char*)blockmap);
+  goto endloop;
+
+endloop:
+
+  sync(1);
+  goto endloop;
 }

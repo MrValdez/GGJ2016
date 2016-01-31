@@ -157,14 +157,15 @@ void clearblockmap() {
 int mouse_x = 400;
 int mouse_y = 400;
 int mouse_sprite[2] = {-1, -1};
+void check_collision();
 
 void mouse_stage()
 {
   int speed;
   if ((getjoystatus(0) & X_BUTTON) == 0)
-    speed = 2;
-  else
     speed = 3;
+  else
+    speed = 7;
     
   if ((getjoystatus(0) & RIGHT_BUTTON) != 0) mouse_x += speed;
   if ((getjoystatus(0) & LEFT_BUTTON) != 0) mouse_x -= speed;
@@ -186,7 +187,10 @@ void mouse_stage()
 
   setsprite(mouse_sprite[0], mouse_x + 3, mouse_y, 120, 0x31);
   if ((getjoystatus(0) & A_BUTTON) != 0)
+  {
     setsprite(mouse_sprite[0], mouse_x + 2, mouse_y + 1, 120, 0x31);
+    check_collision();
+  }
 }
 
 void GameTitle()
@@ -301,6 +305,30 @@ void draw_dogg()
     setsprite(sprite+1, clickables_x[i + 6] + 8, clickables_y[i + 6] + 0, 123, 0x11 );
     setsprite(sprite+2, clickables_x[i + 6] + 0, clickables_y[i + 6] + 8, 124, 0x11 );
     setsprite(sprite+3, clickables_x[i + 6] + 8, clickables_y[i + 6] + 8, 125, 0x11 );
+  }
+}
+
+void check_collision()
+{
+  int i;
+  for (i = 0; i < 6; i++)
+  {
+    if (clickables_x[i] + 16 > mouse_x &&
+        clickables_x[i] < mouse_x + 8 &&
+        clickables_y[i] + 16 > mouse_y &&
+        clickables_y[i] < mouse_y + 8)
+    {
+        energy += 2;
+        if (random(1, 2) == 1)
+          clickables_x[i] -= 5;
+        else
+          clickables_x[i] += 5;
+        if (random(1, 2) == 1)
+          clickables_y[i] -= 5;
+        else
+          clickables_y[i] += 5;
+        
+    }
   }
 }
 

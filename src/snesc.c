@@ -84,6 +84,10 @@ int current_sprite;
 
 int bed_sprite_start = -1;
 int bed_sprite_end = -1;
+int sheet_sprite = -1;
+int head_sprite = -1;
+int head_position_x = -1;
+int head_position_y = -1;
 
 void bed_animation(bed_x, bed_y, is_idling) {
   if (bed_sprite_start == -1)
@@ -106,10 +110,11 @@ void bed_animation(bed_x, bed_y, is_idling) {
     }
 
   // breathing sheet
+  sheet_sprite = bed_sprite_start + current_bed_sprite;
   if (tick % 2)
-    setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y + 0, 18, 0x31);
+    setsprite(sheet_sprite, bed_x + (x * 5), bed_y + 0, 18, 0x31);
   else
-    setsprite(bed_sprite_start + current_bed_sprite, bed_x + (x * 5), bed_y - 2, 18, 0x31);
+    setsprite(sheet_sprite, bed_x + (x * 5), bed_y - 2, 18, 0x31);
   current_bed_sprite++;
 
   for (y=1; y < 2; y++)
@@ -120,8 +125,10 @@ void bed_animation(bed_x, bed_y, is_idling) {
   x += 1;
   
   // head
-  int head_position_x = bed_x + (x * 5) + 3;
-  setsprite(bed_sprite_start + current_bed_sprite, head_position_x, bed_y + 1, 17, 0x31);
+  head_position_x = bed_x + (x * 5) + 3;
+  head_position_y =  bed_y + 1;
+  head_sprite = bed_sprite_start + current_bed_sprite;
+  setsprite(head_sprite, head_position_x, head_position_y , 17, 0x31);
   current_bed_sprite++;
   
   // moving Z
@@ -242,6 +249,7 @@ bed_animation_transition:
   current_sprite = bed_sprite_end - 2;  // remove the two Zs
   setsprite(current_sprite, 0,0,0, 0x11);
   setsprite(current_sprite+1, 0,0,0, 0x11);
+  
 
   tick += 1;
   clearjoy(0);
@@ -254,7 +262,17 @@ bed_animation_transition:
   bed_y -= 1;
 
   if (bed_y <= 60)
+  {
+  
+  // move head
+    setsprite(head_sprite, head_position_x, head_position_y - 10, 0, 0x31);
+    setsprite(sheet_sprite, head_position_x, head_position_y - 10, 0, 0x31);
+    setsprite(current_sprite++, head_position_x, head_position_y - 10, 127, 0x31);
+    setsprite(current_sprite++, head_position_x - 10, head_position_y - 10, 126, 0x31);
+    setsprite(current_sprite++, head_position_x, head_position_y , 128, 0x31);
+    setsprite(current_sprite++, head_position_x - 10, head_position_y , 129, 0x31);
     return;
+  }
   goto bed_animation_transition;
 }
 
@@ -345,7 +363,7 @@ int main() {
   snesc_init();
 
   //settiles(0, tiles1, 0xF00 + (16*3) );
-  settiles(0, tiles1, 0xFFF);
+  settiles(0, tiles1, 0x10FF);
   settiles(1, tiles2, 0x250);
   
   memcpy(pal, palette, 0x200);

@@ -1,5 +1,21 @@
 int release = 0;  // release mode or test mode
 
+  unsigned char padd_map[] = 
+{1,2,2,2,2,2,3,4,4,4,4,4,5,2,2,2,2,2,2,7,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,     // y=10
+ 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,
+ 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+// 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+ };
+
 
 
 #include <string.h>
@@ -98,15 +114,20 @@ void clearblockmap() {
 
 int mouse_x = 400;
 int mouse_y = 400;
-int mouse_speed = 1;
 int mouse_sprite[2] = {-1, -1};
 
 void mouse_stage()
 {
-  if ((getjoystatus(0) & RIGHT_BUTTON) != 0) mouse_x += mouse_speed;
-  if ((getjoystatus(0) & LEFT_BUTTON) != 0) mouse_x -= mouse_speed;
-  if ((getjoystatus(0) & UP_BUTTON) != 0) mouse_y -= mouse_speed;
-  if ((getjoystatus(0) & DOWN_BUTTON) != 0) mouse_y += mouse_speed;
+  int speed;
+  if ((getjoystatus(0) & X_BUTTON) == 0)
+    speed = 2;
+  else
+    speed = 3;
+    
+  if ((getjoystatus(0) & RIGHT_BUTTON) != 0) mouse_x += speed;
+  if ((getjoystatus(0) & LEFT_BUTTON) != 0) mouse_x -= speed;
+  if ((getjoystatus(0) & UP_BUTTON) != 0) mouse_y -= speed;
+  if ((getjoystatus(0) & DOWN_BUTTON) != 0) mouse_y += speed;
 
   //initialize mouse sprite
   if (mouse_sprite[0] == -1) 
@@ -114,10 +135,16 @@ void mouse_stage()
   if (mouse_sprite[1] == -1) 
     mouse_sprite[1] = current_sprite++;
 
+  if (mouse_x < 305) mouse_x = 305;
+  if (mouse_x > 450) mouse_x = 450;
+  if (mouse_y < 355) mouse_y = 355;
+  if (mouse_y > 435) mouse_y = 435;
+
+  setsprite(mouse_sprite[1], mouse_x + 3, mouse_y + 5, 121, 0x31);
+
   setsprite(mouse_sprite[0], mouse_x + 3, mouse_y, 120, 0x31);
   if ((getjoystatus(0) & A_BUTTON) != 0)
     setsprite(mouse_sprite[0], mouse_x + 2, mouse_y + 1, 120, 0x31);
-  setsprite(mouse_sprite[1], mouse_x + 3, mouse_y + 5, 121, 0x31);
 }
 
 void GameTitle()
@@ -184,7 +211,7 @@ int main() {
   snesc_init();
 
   //settiles(0, tiles1, 0xF00 + (16*3) );
-  settiles(0, tiles1, 0xFFF );
+  settiles(0, tiles1, 0xFFF);
   settiles(1, tiles2, 0x250);
   
   memcpy(pal, palette, 0x200);
@@ -193,19 +220,20 @@ int main() {
 
   GameTitle();
 
-  unsigned char map[] = 
-{1,2,2,2,2,2,3,4,4,4,4,4,5,2,2,2,2,2,2,7,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,     // y=10
- 8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,
- 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+
+  unsigned char background[] = 
+{0,19,18,19,20,20,20,18,20,19,18,20,19,20,18,20,20,20,19,0,
+ 18,20,19,19,19,20,18,19,18,19,19,18,20,18,19,18,20,19,19,20,
+20,18,18,20,18,20,19,19,20,19,20,20,18,18,20,19,19,18,19,18,
+20,18,18,20,18,20,19,19,20,19,20,20,18,18,20,19,19,18,19,18,
+18,20,19,19,20,19,18,20,19,20,19,19,19,19,18,18,19,18,19,19,
+20,20,20,20,20,19,19,20,19,18,20,18,18,19,19,20,19,19,18,20,
+20,19,19,19,19,18,19,19,18,19,18,18,19,20,18,20,20,19,19,19,
+18,20,20,19,20,20,20,20,19,20,20,18,19,18,19,20,18,20,20,19,
+18,18,18,20,18,19,19,19,18,18,19,20,20,18,18,20,19,18,18,19,
+20,20,20,20,19,19,18,18,19,20,18,19,19,19,19,19,20,18,19,18,
+0,19,19,18,18,18,20,20,20,20,20,20,20,19,19,19,19,18,19,0,
+ //1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
  };
   
   //memcpy(blockmap, bg1map, 0x800);
@@ -220,12 +248,15 @@ int main() {
   for (y=0; y<12; y++) {
     unsigned long pos = start_y + (y<<5);
     for (x=0; x<20; x+=1) {
-      blockmap[pos+x] = map[i++];
+      blockmap[pos+x] = padd_map[i];
+      backmap[pos+x] = background[i];
+      i++;
     }
   }
   
   setmap(0, (unsigned char*)blockmap);
-  //setmap(1, (unsigned char*)backmap);
+  delay(10);
+  setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
 
 stage1:

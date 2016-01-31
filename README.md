@@ -6,3 +6,7 @@ Controls are:
 
 X button = speed up curosr
 A button = click
+
+
+Library used: SNES-SDK
+Some tileset was taken from the SNES-SDK example game.

@@ -1,4 +1,4 @@
-int release = 0;  // release mode or test mode
+int release = 1;  // release mode or test mode
  unsigned char background1[] = {
 0,19,18,19,20,20,20,18,20,19,18,20,19,20,18,20,20,20,19,0,
 18,20,19,19,19,20,18,19,18,19,19,18,20,18,19,18,20,19,19,20,
@@ -157,6 +157,7 @@ void clearblockmap() {
 int mouse_x = 400;
 int mouse_y = 400;
 int mouse_sprite[2] = {-1, -1};
+int mouse_down = 0;
 void check_collision();
 
 void mouse_stage()
@@ -191,6 +192,11 @@ void mouse_stage()
     setsprite(mouse_sprite[0], mouse_x + 2, mouse_y + 1, 120, 0x31);
     check_collision();
   }
+  
+  if (getjoystatus(0) & A_BUTTON != 0)
+    mouse_down = 1;
+  else
+    mouse_down = 0;
 }
 
 void GameTitle()
@@ -311,25 +317,28 @@ void draw_dogg()
 void check_collision()
 {
   int i;
-  for (i = 0; i < 6; i++)
-  {
-    if (clickables_x[i] + 16 > mouse_x &&
-        clickables_x[i] < mouse_x + 8 &&
-        clickables_y[i] + 16 > mouse_y &&
-        clickables_y[i] < mouse_y + 8)
+
+  if (mouse_down == 0)
+    for (i = 0; i < 6; i++)
     {
-        energy += 2;
-        if (random(1, 2) == 1)
-          clickables_x[i] -= 5;
-        else
-          clickables_x[i] += 5;
-        if (random(1, 2) == 1)
-          clickables_y[i] -= 5;
-        else
-          clickables_y[i] += 5;
-        
+      if (clickables_x[i] + 16 > mouse_x &&
+          clickables_x[i] < mouse_x + 8 &&
+          clickables_y[i] + 16 > mouse_y &&
+          clickables_y[i] < mouse_y + 8)
+      {
+          energy += 2;
+          if (random(1, 2) == 1)
+            clickables_x[i] -= 5;
+          else
+            clickables_x[i] += 5;
+          if (random(1, 2) == 1)
+            clickables_y[i] -= 5;
+          else
+            clickables_y[i] += 5;
+
+          break;
+      }
     }
-  }
 }
 
 int main() {
@@ -468,8 +477,12 @@ stage1:
   writestring("Energy x ", blockmap, 0x0B2, 0x3F6);
   if (tick % 60 == 0)
     energy -= 3;
+  if (tick % 70 == 0)
+    energy -= 2;
+    
   if (energy <= -10)
     energy = -9;
+    
   if (energy > 0)
   {
     writestring("  ", blockmap, 0x117, 0x3F6);
@@ -483,7 +496,7 @@ stage1:
   setmap(0, (unsigned char*)blockmap);
 
   if (energy > 105) goto victory;
-  if (energy < 8) goto lost;
+  if (energy < 2) goto lost;
   
   goto stage1;
   //sync(1);

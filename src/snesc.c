@@ -79,7 +79,7 @@ unsigned int blockmap[0x400];
 unsigned int backmap[0x400];
 unsigned int pal[0x100];
 
-int tick = 0;
+int tick = 299210;
 int current_sprite;
 
 int bed_sprite_start = -1;
@@ -253,7 +253,7 @@ int random(min, max)
 {
   tick++;
   int r = min + ((tick * prev_rand) % (max - min));
-  prev_rand = r % 254;
+  prev_rand = r % 1024;
   return r;
 }
 
@@ -275,6 +275,33 @@ int random_y()
 
 void start_mouse_stage()
 {
+}
+
+int clickables_left[6], clickables_right[6];
+int clickables_x[12], clickables_y[12];
+int energy = 20;
+int dog_energy_icon;
+
+void draw_dogg()
+{
+  int i;
+  for (i = 0; i < 6; i++)
+  {
+    int sprite = clickables_left[i];
+    setsprite(sprite+0, clickables_x[i] - 0, clickables_y[i] - 0, 122, 0x11 + 64);
+    setsprite(sprite+1, clickables_x[i] - 8, clickables_y[i] - 0, 123, 0x11 + 64);
+    setsprite(sprite+2, clickables_x[i] - 0, clickables_y[i] + 8, 124, 0x11 + 64);
+    setsprite(sprite+3, clickables_x[i] - 8, clickables_y[i] + 8, 125, 0x11 + 64);
+  }
+
+  for (i = 0; i < 6; i++)
+  {
+    int sprite = clickables_right[i];
+    setsprite(sprite+0, clickables_x[i + 6] + 0, clickables_y[i + 6] + 0, 122, 0x11 );
+    setsprite(sprite+1, clickables_x[i + 6] + 8, clickables_y[i + 6] + 0, 123, 0x11 );
+    setsprite(sprite+2, clickables_x[i + 6] + 0, clickables_y[i + 6] + 8, 124, 0x11 );
+    setsprite(sprite+3, clickables_x[i + 6] + 8, clickables_y[i + 6] + 8, 125, 0x11 );
+  }
 }
 
 int main() {
@@ -318,6 +345,7 @@ int main() {
   setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
   writestring("Starting PADD  ", blockmap, 779, 0x3F6);
+
   if (release == 1) delay(130);
 
  for (y=0; y<12; y++) {
@@ -329,17 +357,36 @@ int main() {
   setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
   writestring("Loading BARRKER (tm)", blockmap, 774, 0x3F6);
+  
+// dog energy icon
+  x = 180;
+  y = 200;
+  dog_energy_icon = current_sprite;
+  setsprite(current_sprite++, x - 0, y - 0, 122, 0x11 + 64);
+  setsprite(current_sprite++, x - 8, y - 0, 123, 0x11 + 64);
+  setsprite(current_sprite++, x - 0, y + 8, 124, 0x11 + 64);
+  setsprite(current_sprite++, x - 8, y + 8, 125, 0x11 + 64);
   setmap(0, (unsigned char*)blockmap);
+  
+    
   if (release == 1) {
     sync(1);
-    delay(100);
+    delay(160);
   }
   writestring(" REBARK the BARRKS! ", blockmap, 774, 0x3F6);
 
+// dog energy icon
+  x = 170;
+  y = 60;
+  current_sprite = dog_energy_icon;
+  setsprite(current_sprite++, x - 0, y - 0, 122, 0x11 + 64);
+  setsprite(current_sprite++, x - 8, y - 0, 123, 0x11 + 64);
+  setsprite(current_sprite++, x - 0, y + 8, 124, 0x11 + 64);
+  setsprite(current_sprite++, x - 8, y + 8, 125, 0x11 + 64);
+
 //stage1_load:
   mouse_stage();
-  int clickables_left[6], clickables_right[6];
-  int clickables_x[12], clickables_y[12];
+
   for (i = 0; i < 12; i++)
   {
     clickables_x[i] = random_x();
@@ -354,32 +401,57 @@ int main() {
     current_sprite += 4;
   }
   
-  for (i = 0; i < 6; i++)
-  {
-    int sprite = clickables_left[i];
-    setsprite(sprite+0, clickables_x[i] - 0, clickables_y[i] - 0, 122, 0x11 + 64);
-    setsprite(sprite+1, clickables_x[i] - 8, clickables_y[i] - 0, 123, 0x11 + 64);
-    setsprite(sprite+2, clickables_x[i] - 0, clickables_y[i] + 8, 124, 0x11 + 64);
-    setsprite(sprite+3, clickables_x[i] - 8, clickables_y[i] + 8, 125, 0x11 + 64);
-  }
-
-  for (i = 0; i < 6; i++)
-  {
-    int sprite = clickables_right[i];
-    setsprite(sprite+0, clickables_x[i + 6] + 0, clickables_y[i + 6] + 0, 122, 0x11 );
-    setsprite(sprite+1, clickables_x[i + 6] + 8, clickables_y[i + 6] + 0, 123, 0x11 );
-    setsprite(sprite+2, clickables_x[i + 6] + 0, clickables_y[i + 6] + 8, 124, 0x11 );
-    setsprite(sprite+3, clickables_x[i + 6] + 8, clickables_y[i + 6] + 8, 125, 0x11 );
-  }
-
 stage1:
-  tick += 1;
+  draw_dogg();
+
+  int r, speed;
+  for (i = 0; i < 12; i++)
+  {
+    r = random(0, 2);
+    speed = random(-2,4);
+    if (r == 0)
+      clickables_x[i] += speed;
+    else
+      clickables_x[i] -= speed;
+      
+    r = random(0, 2);
+    speed = random(-1,2);
+    if (r == 0)
+      clickables_y[i] += speed;
+    else
+      clickables_y[i] -= speed;
+    
+  // range: 305 - 450 
+  // padding: 12
+  // range: 355 - 435   
+    while (clickables_x[i] < 305 || clickables_x[i] > 448)
+      clickables_x[i] = random_x();
+    while (clickables_y[i] < 355 || clickables_y[i] > 435)
+      clickables_y[i] = random_y();
+  }
+
+  tick += 3;
   clearjoy(0);
   delay(1);
 
   mouse_stage();
 
-  writenum(current_sprite, 8, blockmap, 0x136, 0x426);
+  //writenum(current_sprite, 8, blockmap, 0x136, 0x426);
+  writestring("Energy x ", blockmap, 0x0B2, 0x3F6);
+  if (tick % 60 == 0)
+    energy -= 3;
+  if (energy <= -10)
+    energy = -9;
+  if (energy > 0)
+  {
+    writestring("  ", blockmap, 0x117, 0x3F6);
+    writenum(energy, 8, blockmap, 0x112, 0x426);
+  }
+  else
+  {
+    writestring(" -", blockmap, 0x117, 0x3F6);
+    writenum(energy * -1, 8, blockmap, 0x112, 0x426);
+  }
   setmap(0, (unsigned char*)blockmap);
   
   goto stage1;

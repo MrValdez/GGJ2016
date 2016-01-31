@@ -1,3 +1,7 @@
+int release = 0;  // release mode or test mode
+
+
+
 #include <string.h>
 #include "snesc.h"
 
@@ -30,14 +34,6 @@ unsigned char blocks[0x64], map[0x64] =
 
 int tick = 0;
 int current_sprite;
-void title() {
-
-  writestring("TEAM SONY", blockmap, 0x084, 0x3F6);
-  writestring("presents", blockmap, 0x0A7, 0x3F6);
-  writestring("A NINTENDO GAME", blockmap, 0x169, 0x3F6);
-  writestring("developed at", blockmap, 0x250, 0x3F6);
-  writestring("MICROSOFT PHILIPPINES", blockmap, 0x288, 0x3F6);
-}
 
 int bed_sprite_start = -1;
 int bed_sprite_end = -1;
@@ -135,6 +131,62 @@ void mouse_stage()
   setsprite(mouse_sprite[1], mouse_x + 3, mouse_y + 5, 121, 0x31);
 }
 
+void GameTitle()
+{
+  writestring("TEAM SONY", blockmap, 0x084, 0x3F6);
+  writestring("presents", blockmap, 0x0A7, 0x3F6);
+  writestring("A NINTENDO GAME", blockmap, 0x169, 0x3F6);
+  writestring("developed at", blockmap, 0x250, 0x3F6);
+  writestring("MICROSOFT PHILIPPINES", blockmap, 0x288, 0x3F6);
+
+  enablescreen();
+  resettimer();
+  //while (getjoystatus(0) == 0) continue;
+  if (release){
+    delay(60 * 5);
+    clearjoy(0);
+  }
+  clearblockmap();
+
+  writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
+
+  int bed_x = 90;
+  int bed_y = 130;
+start_menu:
+  current_sprite = 0;
+
+  bed_animation(bed_x, bed_y, 1);
+
+  if ((getjoystatus(0) & UP_BUTTON) != 0 ||
+      (getjoystatus(0) & START_BUTTON) != 0 ||
+      release == 0)
+  {
+    clearblockmap();
+    current_sprite -= 2;  // remove the two Zs
+    goto bed_animation_transition;
+  }
+
+  tick += 3;
+  clearjoy(0);
+  delay(3);
+  goto start_menu;
+  
+bed_animation_transition:
+  tick += 1;
+  clearjoy(0);
+  delay(1);
+  
+  if (release == 0)
+    bed_y = 60;
+
+  bed_animation(bed_x, bed_y, 0);
+  bed_y -= 1;
+
+  if (bed_y <= 60)
+    return;
+  goto bed_animation_transition;
+}
+
 void start_mouse_stage()
 {
 }
@@ -154,55 +206,46 @@ int main() {
 //  setmap(1, (unsigned char*)backmap);
   setpalette((unsigned char*)pal);
 
-  title();
-  enablescreen();
-  resettimer();
-  //while (getjoystatus(0) == 0) continue;
-  delay(60 * 5);
-  clearjoy(0);
-    
-  clearblockmap();
-
-  writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
-
-  int bed_x = 90;
-  int bed_y = 130;
-start_menu:
-  current_sprite = 0;
-
-  bed_animation(bed_x, bed_y, 1);
-
-  if ((getjoystatus(0) & UP_BUTTON) != 0 ||
-      (getjoystatus(0) & START_BUTTON) != 0)
-  {
-    clearblockmap();
-    current_sprite -= 2;  // remove the two Zs
-    goto bed_animation_transition;
-  }
-
-  tick += 3;
-  clearjoy(0);
-  delay(3);
-  goto start_menu;
+  GameTitle();
+/*
+  unsigned char blocks[0x64], map[0x64] = 
+{7,8,8,8,8,8,8,8,8,7,
+ 8,7,8,7,8,8,7,8,7,8,
+ 8,8,7,8,7,7,8,7,8,8,
+ 8,8,8,1,3,3,1,8,8,8,
+ 8,0,4,8,8,8,8,4,0,8,
+ 8,0,8,8,5,5,8,8,0,8,
+ 8,0,4,8,8,8,8,4,0,8,
+ 8,8,8,1,3,3,1,8,8,8,
+ 8,8,6,8,6,6,8,6,8,8,
+ 7,7,7,7,8,8,7,7,7,7};
   
-bed_animation_transition:
-  tick += 1;
-  clearjoy(0);
-  delay(1);
-
-  bed_animation(bed_x, bed_y, 0);
-  bed_y -= 1;
-
-  if (bed_y <= 80)
-    goto stage1;
-  goto bed_animation_transition;
-
+  memcpy(blockmap, bg1map, 0x800);
+  memcpy(backmap, bg2map, 0x800);
+  memcpy(blocks, map, 0x64);
+  memcpy(pal, palette, 0x200);
+    int j, i,a, c, b=0, blockcount=0;
+  for (j=0;j<10;j++) {
+    for (i=0;i<20;i+=2) {
+      a = blocks[b];
+      if (a < 8) {
+        c = (j<<5)+i; blockcount++;
+        blockmap[0x62+c] = 13+(a<<10);
+        blockmap[0x63+c] = 14+(a<<10);
+        backmap[0x83+c] += 0x400;
+        backmap[0x84+c] += 0x400;
+      }
+      b++;
+    }
+  }
+*/
 stage1:
   tick += 1;
   clearjoy(0);
   delay(1);
 
   mouse_stage();
+    
   goto stage1;
 
 /*  

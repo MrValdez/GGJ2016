@@ -32,11 +32,11 @@ int tick = 0;
 int current_sprite;
 void title() {
 
-  writestring("TEAM SONY", blockmap, 0x06A, 0x3F6);
-  writestring("presents", blockmap, 0x10A, 0x3F6);
-  writestring("A NINTENDO GAME", blockmap, 0x12A, 0x3F6);
-  writestring("developed at", blockmap, 0x16A, 0x3F6);
-  writestring("MICROSOFT PHILIPPINES", blockmap, 0x18A, 0x3F6);
+  writestring("TEAM SONY", blockmap, 0x084, 0x3F6);
+  writestring("presents", blockmap, 0x0A7, 0x3F6);
+  writestring("A NINTENDO GAME", blockmap, 0x169, 0x3F6);
+  writestring("developed at", blockmap, 0x250, 0x3F6);
+  writestring("MICROSOFT PHILIPPINES", blockmap, 0x288, 0x3F6);
 }
 
 int bed_sprite_start = -1;
@@ -157,31 +157,53 @@ int main() {
   title();
   enablescreen();
   resettimer();
-
   //while (getjoystatus(0) == 0) continue;
+  delay(60 * 5);
+  clearjoy(0);
     
   clearblockmap();
 
   writestring("DAILY RITUAL", blockmap, 0x06A, 0x3F6);
+
   int bed_x = 90;
   int bed_y = 130;
-
-label1:
+start_menu:
   current_sprite = 0;
+
+  bed_animation(bed_x, bed_y, 1);
+
+  if ((getjoystatus(0) & UP_BUTTON) != 0 ||
+      (getjoystatus(0) & START_BUTTON) != 0)
+  {
+    clearblockmap();
+    current_sprite -= 2;  // remove the two Zs
+    goto bed_animation_transition;
+  }
+
+  tick += 3;
+  clearjoy(0);
+  delay(3);
+  goto start_menu;
+  
+bed_animation_transition:
   tick += 1;
   clearjoy(0);
   delay(1);
-  if ((getjoystatus(0) & UP_BUTTON) != 0)
-  {
-    bed_animation(bed_x, bed_y, 0);
-    bed_y -= 1;
-  }
-  else
-  {
-    bed_animation(bed_x, bed_y, 1);
-  }
-  start_mouse_stage();
-  //mouse_stage();
+
+  bed_animation(bed_x, bed_y, 0);
+  bed_y -= 1;
+
+  if (bed_y <= 80)
+    goto stage1;
+  goto bed_animation_transition;
+
+stage1:
+  tick += 1;
+  clearjoy(0);
+  delay(1);
+
+  mouse_stage();
+  goto stage1;
 
 /*  
   char st[17]="PLAYER 1\n\n READY", st2[10]="GAME OVER", st3[6]="PAUSE", st4[9]="        ";
@@ -401,5 +423,5 @@ label1:
   setsprite(9, px+28, 204, 18, 0x11+64);
 */
   //sync(1);
-  goto label1;
+  //goto label1;
 }
